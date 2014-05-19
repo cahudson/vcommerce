@@ -1,0 +1,100 @@
+<html>
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <title>360 Video Product Sample</title>
+  <!-- 
+    	Charles Hudson - chuckahudson+smw at gmail dot com
+    	Streaming Media East talk - May, 13, 2014
+        D104: How To: Driving Commerce Through Streaming Video
+        Creative Commons - May be used for any purpose.
+        -->
+<style>
+#video_box{float:left;}
+#video_overlays {position:absolute;float:left;background: rgba(0, 0, 0, 0.5);z-index:300000;text-align:center;}
+</style>
+	<link rel="stylesheet" href="//code.jquery.com/ui/1.10.4/themes/smoothness/jquery-ui.css">
+  <script src="//code.jquery.com/jquery-1.10.2.js"></script>
+  <script src="//code.jquery.com/ui/1.10.4/jquery-ui.js"></script>
+  <link rel="stylesheet" href="//jqueryui.com/resources/demos/style.css">
+  <script>
+
+	$(function() {
+		var canvas = document.getElementById('viewangle');
+		if (canvas.getContext){
+			var ctx = canvas.getContext('2d');
+		
+			var base_image = new Image();
+			base_image.src = 'compass.png';
+			base_image.onload = function() {
+				ctx.drawImage(base_image, 0, 0);
+				
+				// Draw marker showing angle of viewing set to 0.
+				ctx.beginPath();
+				ctx.moveTo(50, 50);
+				ctx.lineTo(50, 10);
+      			ctx.lineWidth = 5;
+				ctx.strokeStyle = '#0000bb';
+				ctx.stroke();
+			}
+		}
+				  
+		$("#slider").slider({
+			value : 0,
+			step  : 1,
+			range : 'min',
+			min   : 0,
+			max   : 360,
+			slide : function(){
+				
+				// Move to the right section in the video.
+				var value = $("#slider").slider("value");
+				document.getElementById("360Video").currentTime = (value/22.5);
+	
+				// Correct for our compass positioning and reverse layout.
+				value=360-value;
+				value-=90;
+				if (value<0) {
+					value+=360;
+				}
+				
+				// Set our view marker in the compass.
+				var r = 40;
+				var Bx = 50 + r * Math.cos(value*(Math.PI/180));
+    			var By = 50 + r * Math.sin(value*(Math.PI/180));
+				
+				// Log out the angle and marker end point values.
+				console.log('value='+value+' |'+Bx+','+By);
+				
+				// Clear the last reading.
+				ctx.clearRect(0,0,100,100);
+				
+				// Redraw the compass - not most efficient.
+				ctx.drawImage(base_image,0,0);
+				
+				// Draw marker showing angle of viewing.
+				ctx.beginPath();
+				ctx.moveTo(50, 50);
+				ctx.lineTo(Bx, By);
+      			ctx.lineWidth = 5;
+				ctx.strokeStyle = '#0000bb';
+				ctx.stroke();
+			}
+		});
+	});
+	
+</script>
+</head>
+<body>
+    <div id="video_box">
+    	<!-- Place our compass in the top left corner -->
+        <div id="video_overlays"><canvas id="viewangle" width="100" height="100"></canvas></div>
+        <div>
+        	<video id='360Video'>
+                <source src="360prod_example.mp4" type='video/mp4'>
+                <p>HTML5 Video is not supported by this browser.</p>
+            </video>
+        </div>
+        <div id="slider"></div>
+    </div>
+</body>
+</html>

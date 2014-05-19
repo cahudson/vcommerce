@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>YouTube Example player control</title>
+  <!-- 
+    	Basis from YouTube Developer Documentation
+        https://developers.google.com/youtube/iframe_api_reference
+        
+        Charles Hudson - chuckahudson+smw at gmail dot com
+    	Streaming Media East talk - May, 13, 2014
+        D104: How To: Driving Commerce Through Streaming Video
+        Creative Commons - May be used for any purpose.
+        -->
+        
+<script>
+	
+	var player;				// Global player reference holder.
+	var tmrFlag = false;	// Flag for hitting time limit on video.
+	
+	function init() {
+		// Load the YoutTube IFrame Player API code asynchronously.
+		var tag = document.createElement('script');
+		tag.src = "https://www.youtube.com/iframe_api";
+		var firstScriptTag = document.getElementsByTagName('script')[0];
+		firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+	}
+	
+	// onYouTubeIframeAPIReady called automatically when API code is ready.
+	function onYouTubeIframeAPIReady() {
+		
+		// Create player with size, YouTube video id and events to handle.
+		player = new YT.Player('player', {
+			height: '390',
+			width: '640',
+			videoId: 'L2RjEcAodjw',
+			events: {
+				'onReady': onPlayerReady,
+				'onStateChange': onPlayerStateChange,
+				'onPlaybackQualityChange': onPlayerPlaybackQualityChange,
+				'onError': onPlayerError
+			}
+		});
+	}
+	
+	// onPlayerReady event handler for when player is ready.
+	function onPlayerReady(event) {
+	  
+	  	// Display video information from the YouTube IFrame player.
+		var videoInfo = document.getElementById('videoInfo');
+		videoInfo.innerHTML = "Video length: "+player.getDuration()+"<br/>"+
+								"Video URL: "+event.target.getVideoUrl();
+		
+		// Log the embedding code.
+		console.log(event.target.getVideoEmbedCode());
+		
+		// Start the video playback.
+		event.target.playVideo();
+	}
+	
+	// Player state has changed.
+	function onPlayerStateChange(event) {
+	  
+		// Control player flow and position like HTML5 video.
+		if (event.data == YT.PlayerState.PLAYING && !tmrFlag) {
+			setTimeout(stopVideo, 10000);
+			tmrFlag = true;
+		}
+		
+		// Debug - display the player status.
+		switch (event.data) {
+			case -1: 
+				playerState = "unstarted";
+				break;
+			case 0: 
+				playerState = "ended";
+				break;
+			case 1: 
+				playerState = "playing";
+				break;
+			case 2: 
+				playerState = "paused";
+				break;
+			case 3: 
+				playerState = "buffering";
+				break;
+			case 5: 
+				playerState = "video cued";
+				break;
+			default:
+				playerState = "unknown";
+		}
+		
+		console.log(event.data+' | '+playerState);
+	}
+	
+	function onPlayerPlaybackQualityChange(event) {
+		// Not used here but would be if quality changed.
+	}
+	
+	function onPlayerError(event) {
+		console.log("An error has occurred: "+event.data);
+	}
+	
+	// Helper when timer fired to stop and reposition video.
+	function stopVideo() {
+		
+		// Use the player object reference to stop video.
+		player.stopVideo();
+		
+		// Reposition video cursor to 15 seconds in.
+		player.seekTo(15);
+	}
+	
+	window.addEventListener('load',init);
+</script>
+</head>
+  <body>
+    <div id="player">Player container div</div>
+    <div id="videoInfo">Video Information container div</div>
+  </body>
+</html>

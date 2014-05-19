@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>YoutTube Player - dynamic load from thumbnails</title>
+  <!-- 
+    	Basis from YouTube Developer Documentation
+        https://developers.google.com/youtube/iframe_api_reference
+        
+        Charles Hudson - chuckahudson+smw at gmail dot com
+    	Streaming Media East talk - May, 13, 2014
+        D104: How To: Driving Commerce Through Streaming Video
+        Creative Commons - May be used for any purpose.
+        -->
+        
+<script>
+
+	// Set our global player reference and ready flag.
+	var player;
+	var playerReady = false;
+
+	// Initialize the page and load the youtube iframe api script async.
+	function init() {
+		var tag = document.createElement('script');
+		tag.src = "https://www.youtube.com/iframe_api";
+		var firstScriptTag = document.getElementsByTagName('script')[0];
+		firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+	}
+
+	// Create our iframe youtube player with the basic settings.
+	function onYouTubeIframeAPIReady() {
+		player = new YT.Player('player', {
+		height: '390',
+		width: '640',
+		videoId: '57w7e6_3MPg',
+			events: {
+				'onReady': onPlayerReady
+			}
+		});
+	}
+
+	// Player is now ready, set our flag.
+	function onPlayerReady() {
+		playerReady = true;
+	}
+	
+	// Change the video based on the user selection.
+	function changeVideo(vid) {
+		if (playerReady) {
+			player.loadVideoById(vid);
+		} else {
+			// could replace with timer
+			alert("Player not ready.");
+		}
+	}
+	
+	window.addEventListener('load',init);
+
+</script>
+</head>
+  <body>
+    <div id="player">Player will reside here.</div>
+    <div id="thumbs">
+    	<!-- Hardcoded list of video thumbnails. Could be replaced with dynamic playlist. -->
+    	<img src="vidthumb1.png" onClick='changeVideo("57w7e6_3MPg");' style='cursor:pointer'/>
+    	<img src="vidthumb2.png" onClick='changeVideo("5ZQ5JJTwONc");' style='cursor:pointer'/>
+    	<img src="vidthumb3.png" onClick='changeVideo("1diFaa5OsFg");' style='cursor:pointer'/>
+    </div>
+  </body>
+</html>
